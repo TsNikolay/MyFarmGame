@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  background-color: aqua;
+  background-position: center;
+  overflow: hidden;
+}
+
+#root {
+  padding: 3rem;
+  text-align: center;
+}
+
+h1 {
+  font-family: Bungee;
+  color: orange;
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+}
