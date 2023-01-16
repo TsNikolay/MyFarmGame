@@ -1,17 +1,17 @@
-import Game, { Boundary } from "./game.js";
+import { config } from "./config.js";
+import Game, { Cell } from "./game.js";
 
 const canvas = document.querySelector("canvas");
-const windowInnerWidth = window.innerWidth;
-const windowInnerHeight = window.innerHeight;
-canvas.width = windowInnerWidth;
-canvas.height = windowInnerHeight;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 const context = canvas.getContext("2d");
 
 export default class View {
   constructor() {
-    this.game = new Game();
     this.image = new Image();
     this.image.src = "../images/Map.png";
+    this.foregroundImage = new Image();
+    this.foregroundImage.src = "../images/back.png";
     this.draw();
   }
 
@@ -25,43 +25,53 @@ export default class View {
   }
 
   drawPlayer() {
+    const proportionCanvasToPlayerWidth = 17;
+    const proportionCanvasToPlayerHeight = 6;
+    const sprittesAmountOnImage = 3;
+    const spriteUpdateFrequency = 5;
+    const frames = game.player.frames;
+
     if (!game.player.isMoving) {
-      game.player.frames.val = 1; //если стоит то чтобы был стоячий спрайт
+      frames.value = 1;
     }
 
     context.drawImage(
-      game.playerCurrentImage,
-      game.player.frames.val * game.player.width,
+      game.playerCurrentSprite,
+      frames.value * game.player.width,
       0,
-      game.playerDownImage.width / 3, // чтобы показать токо первую модельку из трёх
-      game.playerDownImage.height,
+      game.playerCurrentSprite.width / sprittesAmountOnImage,
+      game.playerCurrentSprite.height,
       game.player.position.x,
       game.player.position.y,
-      canvas.width / 12, //пропорция канваса к персу
-      canvas.height / 6 //пропорция канваса к персу
+      canvas.width / proportionCanvasToPlayerWidth,
+      canvas.height / proportionCanvasToPlayerHeight
     );
 
-    game.player.frames.scenesAmount++;
+    frames.scenesAmount++;
 
-    if (game.player.frames.scenesAmount % 5 === 0) {
-      if (game.player.frames.val < game.player.frames.max - 1) {
-        game.player.frames.val++;
+    if (frames.scenesAmount % spriteUpdateFrequency === 0) {
+      if (frames.value < frames.maxValue - 1) {
+        frames.value++;
       } else {
-        game.player.frames.val = 0;
+        frames.value = 0;
       }
     }
   }
 
-  drawCollision() {
-    for (let i = 0; i < game.createCollision().length; i++) {
-      context.fillStyle = "red";
+  drawCollision(currentCellsArray, color) {
+    currentCellsArray.forEach((cell) => {
+      context.fillStyle = color;
       context.fillRect(
-        game.createCollision()[i].position.y - 15,
-        game.createCollision()[i].position.x + 12,
-        Boundary.width,
-        Boundary.height
+        cell.position.x - config.paddings.padding15px,
+        cell.position.y + config.paddings.padding12px,
+        Cell.width,
+        Cell.height
       );
-    }
+    });
+  }
+
+  drawForeground() {
+    context.drawImage(this.foregroundImage, 0, 0, canvas.width, canvas.height);
   }
 
   clearPlayfield() {
@@ -73,7 +83,12 @@ export default class View {
       this.drawCanvas();
       this.drawBackground();
       this.drawPlayer();
-      // this.drawCollision();
+      this.drawForeground();
+      //this.drawCollision(game.arrayOfCells.borders, config.colors.red);
+      //this.drawCollision(game.arrayOfCells.house, config.colors.blue);
+      //this.drawCollision(game.arrayOfCells.barn, config.colors.yellow);
+      //this.drawCollision(game.arrayOfCells.town, config.colors.green);
+      //this.drawCollision(game.arrayOfCells.garden, config.colors.pink);
     };
   }
 

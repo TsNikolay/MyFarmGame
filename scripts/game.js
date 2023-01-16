@@ -1,114 +1,254 @@
-import Config from "./config.js";
+import { config } from "./config.js";
 import { collision } from "../data/collision.js";
 
 export default class Game {
   constructor() {
-    this.config = new Config();
-    this.playerCurrentImage = new Image();
-    this.playerUpImage = new Image();
-    this.playerDownImage = new Image();
-    this.playerLeftImage = new Image();
-    this.playerRightImage = new Image();
-    this.playfield = this.createPlayfield();
+    this.playerCurrentSprite = new Image();
+    this.playerUpSprite = new Image();
+    this.playerDownSprite = new Image();
+    this.playerLeftSprite = new Image();
+    this.playerRightSprite = new Image();
+    //this.playfield = this.createPlayfield();
     this.player = this.createPlayer();
-    this.boundaries = this.createCollision();
+    this.arrayOfCells = this.createBordersAndMarkers();
   }
 
-  createCollision() {
+  createBordersAndMarkers() {
     const collisionsArray = [];
-    for (let i = 0; i < collision.length; i += 19) {
-      collisionsArray.push(collision.slice(i, 19 + i));
+    for (let i = 0; i < collision.length; i += config.rows) {
+      collisionsArray.push(collision.slice(i, config.rows + i));
     }
 
-    const boundaries = [];
+    const borders = [];
+    const house = [];
+    const barn = [];
+    const town = [];
+    const garden = [];
 
-    for (let index1 = 0; index1 < collisionsArray.length; index1++) {
-      for (let index2 = 0; index2 < collisionsArray[index1].length; index2++) {
-        if (collisionsArray[index1][index2] != 0) {
-          boundaries.push(
-            new Boundary({
+    collisionsArray.forEach((row, index1) => {
+      row.forEach((cell, index2) => {
+        if (cell === "border") {
+          borders.push(
+            new Cell({
               position: {
-                x: index1 * Boundary.width,
-                y: index2 * Boundary.height,
+                y: index1 * Cell.width,
+                x: index2 * Cell.height,
+              },
+            })
+          );
+        } else if (cell === "house") {
+          house.push(
+            new Cell({
+              position: {
+                y: index1 * Cell.width,
+                x: index2 * Cell.height,
+              },
+            })
+          );
+        } else if (cell === "barn") {
+          barn.push(
+            new Cell({
+              position: {
+                y: index1 * Cell.width,
+                x: index2 * Cell.height,
+              },
+            })
+          );
+        } else if (cell === "town") {
+          town.push(
+            new Cell({
+              position: {
+                y: index1 * Cell.width,
+                x: index2 * Cell.height,
+              },
+            })
+          );
+        } else if (cell === "garden") {
+          garden.push(
+            new Cell({
+              position: {
+                y: index1 * Cell.width,
+                x: index2 * Cell.height,
               },
             })
           );
         }
-      }
-    }
-    return boundaries;
+      });
+    });
+
+    return {
+      borders: borders,
+      house: house,
+      barn: barn,
+      town: town,
+      garden: garden,
+    };
   }
 
-  createPlayfield() {
+  objectsCollision({ object1, object2 }) {
+    const object1Sides = {
+      left: object1.position.x + config.paddings.padding50px,
+      right: object1.position.x + object1.width - config.paddings.padding40px,
+      top: object1.position.y + config.paddings.padding75px,
+      bottom: object1.position.y + object1.height - config.paddings.padding90px,
+    };
+
+    const object2Sides = {
+      left: object2.position.x,
+      right: object2.position.x + Cell.width,
+      top: object2.position.y,
+      bottom: object2.position.y + Cell.height,
+    };
+
+    function horizontalCollision() {
+      return (
+        object1Sides.left <= object2Sides.right &&
+        object1Sides.right >= object2Sides.left
+      );
+    }
+
+    function verticalCollision() {
+      return (
+        object1Sides.top <= object2Sides.bottom &&
+        object1Sides.bottom >= object2Sides.top
+      );
+    }
+
+    return horizontalCollision() && verticalCollision();
+  }
+
+  isCollised(currentCellsArray) {
+    for (let i = 0; i < currentCellsArray.length; i++) {
+      const cell = currentCellsArray[i];
+
+      if (
+        this.objectsCollision({
+          object1: this.player,
+          object2: {
+            ...cell,
+            position: {
+              x: cell.position.x + config.paddings.padding12px,
+              y: cell.position.y - config.paddings.padding15px,
+            },
+          },
+        })
+      ) {
+        return true;
+      }
+    }
+  }
+
+  /* createPlayfield() {
     const playfield = [];
 
-    for (let y = 0; y < this.config.rows; y++) {
-      playfield[y] = [];
-      for (let x = 0; x < this.config.columns; x++) {
-        playfield[y][x] = 0;
-      }
-    }
+    playfield.forEach((rows) => {
+      rows.forEach((cell) => {
+        cell = 0;
+      });
+    });
+
     return playfield;
-  }
+  } */
 
   createPlayer() {
-    this.playerCurrentImage.src = "../images/characterDown1.png";
-    this.playerUpImage.src = "../images/characterUp1.png";
-    this.playerDownImage.src = "../images/characterDown1.png";
-    this.playerLeftImage.src = "../images/characterLeft1.png";
-    this.playerRightImage.src = "../images/characterRight1.png";
+    this.playerCurrentSprite.src = "../images/characterDown1.png";
+    this.playerUpSprite.src = "../images/characterUp1.png";
+    this.playerDownSprite.src = "../images/characterDown1.png";
+    this.playerLeftSprite.src = "../images/characterLeft1.png";
+    this.playerRightSprite.src = "../images/characterRight1.png";
 
     const player = {
       position: {
-        x: window.innerWidth / 2 - 65, // 65 отступ чтоб по центру был перс
+        x: window.innerWidth / 2 - window.innerWidth / config.rows / 2,
         y: window.innerHeight / 2,
       },
 
-      velocity: 10,
-      frames: { ...frames, val: 0, max: 3, scenesAmount: 0 },
+      speed:
+        (window.innerWidth * config.defaultSpeed) / config.defaultCanvasWidth,
+      frames: { ...frames, value: 0, maxValue: 3, scenesAmount: 0 },
       isMoving: false,
 
-      width: this.playerDownImage.width / 3,
-      height: this.playerDownImage.height,
+      width: this.playerDownSprite.width / 3,
+      height: this.playerDownSprite.height,
 
       sprites: {
-        up: this.playerUpImage,
-        down: this.playerDownImage,
-        left: this.playerLeftImage,
-        right: this.playerRightImage,
+        up: this.playerUpSprite,
+        down: this.playerDownSprite,
+        left: this.playerLeftSprite,
+        right: this.playerRightSprite,
       },
     };
     return player;
   }
 
   movePlayerLeft() {
-    this.player.isMoving = true;
-    this.playerCurrentImage = this.player.sprites.left;
-    this.player.position.x -= this.player.velocity;
+    this.playerCurrentSprite = this.player.sprites.left;
+    this.player.position.x -= this.player.speed;
+    if (this.isCollised(this.arrayOfCells.borders)) {
+      this.player.position.x += this.player.speed;
+    } else if (this.isCollised(this.arrayOfCells.house)) {
+      console.log("House");
+    } else if (this.isCollised(this.arrayOfCells.barn)) {
+      console.log("Barn");
+    } else if (this.isCollised(this.arrayOfCells.town)) {
+      console.log("Town");
+    } else if (this.isCollised(this.arrayOfCells.garden)) {
+      console.log("Garden");
+    }
   }
 
   movePlayerRight() {
-    this.player.isMoving = true;
-    this.playerCurrentImage = this.player.sprites.right;
-    this.player.position.x += this.player.velocity;
+    this.playerCurrentSprite = this.player.sprites.right;
+    this.player.position.x += this.player.speed;
+    if (this.isCollised(this.arrayOfCells.borders)) {
+      this.player.position.x -= this.player.speed;
+    } else if (this.isCollised(this.arrayOfCells.house)) {
+      console.log("House");
+    } else if (this.isCollised(this.arrayOfCells.barn)) {
+      console.log("Barn");
+    } else if (this.isCollised(this.arrayOfCells.town)) {
+      console.log("Town");
+    } else if (this.isCollised(this.arrayOfCells.garden)) {
+      console.log("Garden");
+    }
   }
 
   movePlayerUp() {
-    this.player.isMoving = true;
-    this.playerCurrentImage = this.player.sprites.up;
-    this.player.position.y -= this.player.velocity;
+    this.playerCurrentSprite = this.player.sprites.up;
+    this.player.position.y -= this.player.speed;
+    if (this.isCollised(this.arrayOfCells.borders)) {
+      this.player.position.y += this.player.speed;
+    } else if (this.isCollised(this.arrayOfCells.house)) {
+      console.log("House");
+    } else if (this.isCollised(this.arrayOfCells.barn)) {
+      console.log("Barn");
+    } else if (this.isCollised(this.arrayOfCells.town)) {
+      console.log("Town");
+    } else if (this.isCollised(this.arrayOfCells.garden)) {
+      console.log("Garden");
+    }
   }
 
   movePlayerDown() {
-    this.player.isMoving = true;
-    this.playerCurrentImage = this.player.sprites.down;
-    this.player.position.y += this.player.velocity;
+    this.playerCurrentSprite = this.player.sprites.down;
+    this.player.position.y += this.player.speed;
+    if (this.isCollised(this.arrayOfCells.borders)) {
+      this.player.position.y -= this.player.speed;
+    } else if (this.isCollised(this.arrayOfCells.house)) {
+      console.log("House");
+    } else if (this.isCollised(this.arrayOfCells.barn)) {
+      console.log("Barn");
+    } else if (this.isCollised(this.arrayOfCells.town)) {
+      console.log("Town");
+    } else if (this.isCollised(this.arrayOfCells.garden)) {
+      console.log("Garden");
+    }
   }
 }
 
-export class Boundary {
-  static width = window.innerWidth / 19;
-  static height = window.innerHeight / 9;
+export class Cell {
+  static width = window.innerWidth / config.rows;
+  static height = window.innerHeight / config.columns;
 
   constructor({ position }) {
     this.position = position;
