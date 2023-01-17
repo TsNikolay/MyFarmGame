@@ -151,11 +151,11 @@ export default class Game {
   } */
 
   createPlayer() {
-    this.playerCurrentSprite.src = '/images/characterDown1.png';
-    this.playerUpSprite.src = '/images/characterUp1.png';
-    this.playerDownSprite.src = '/images/characterDown1.png';
-    this.playerLeftSprite.src = '/images/characterLeft1.png';
-    this.playerRightSprite.src = '/images/characterRight1.png';
+    this.playerCurrentSprite.src = './images/characterDown1.png';
+    this.playerUpSprite.src = './images/characterUp1.png';
+    this.playerDownSprite.src = './images/characterDown1.png';
+    this.playerLeftSprite.src = './images/characterLeft1.png';
+    this.playerRightSprite.src = './images/characterRight1.png';
 
     const player = {
       position: {
