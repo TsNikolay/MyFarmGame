@@ -9,9 +9,9 @@ const context = canvas.getContext("2d");
 export default class View {
   constructor() {
     this.image = new Image();
-    this.image.src = "../images/Map.png";
+    this.image.src = '/images/Map.png';
     this.foregroundImage = new Image();
-    this.foregroundImage.src = "../images/back.png";
+    this.foregroundImage.src = '/images/back.png';
     this.draw();
   }
 
