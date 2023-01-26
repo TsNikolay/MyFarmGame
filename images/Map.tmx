@@ -8,7 +8,7 @@
  <tileset firstgid="271" source="Tiny Wonder Farm Free/Houses.tsx"/>
  <tileset firstgid="401" source="Tiny Wonder Farm Free/vehicles.tsx"/>
  <tileset firstgid="819" source="Tiny Wonder Farm Free/atlas.tsx"/>
- <group id="17" name="Объекты" visible="0">
+ <group id="17" name="Объекты">
   <layer id="1" name="низ " width="19" height="9">
    <data encoding="csv">
 133,133,96,97,97,97,97,97,97,97,97,97,97,97,97,97,98,133,133,

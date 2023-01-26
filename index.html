@@ -8,13 +8,43 @@
     <title>Farmer</title>
 
     <link
-      href="https://fonts.googleapis.com/css?family=Bungee"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <h1>Вы хотите завершить этот день?</h1>
+        <div class="button-wrapper">
+          <button class="Yes">Да</button>
+          <button class="No">Нет</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="myModal2" class="modal2">
+      <div class="modal-content2">
+        <h1>Сегодня вы заработали:</h1>
+        <div class="image-wrapper2">
+          <img src="images/moneyFinal.png" />
+        </div>
+        <div class="number-wrapper2">
+          <h1><span id="money"></span></h1>
+        </div>
+        <div class="button-wrapper2">
+          <button class="continue">Продолжить</button>
+        </div>
+      </div>
+    </div>
+
+    <video class="cutScene1" preload="auto">
+      <source type="video/mp4" src="videos/sleep.mp4" />
+    </video>
+
     <canvas></canvas>
+
     <script src="scripts/script.js" type="module"></script>
   </body>
 </html>
