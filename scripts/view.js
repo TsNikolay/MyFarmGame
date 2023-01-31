@@ -1,5 +1,5 @@
 import { config } from "./config.js";
-import { mainCollision, houseCollision } from "../data/collision.js";
+import { gardenCollision, mainCollision, houseCollision } from "../data/collision.js";
 import Game, { Cell } from "./game.js";
 
 const canvas = document.querySelector("canvas");
@@ -31,6 +31,11 @@ export default class View {
   drawImageWithPosition(image, x, y) {
     if (!image) return;
     context.drawImage(image, x, y, canvas.width, canvas.height);
+  }
+
+  drawImageWithPosAndScale(image, x, y, width, height) {
+    if (!image) return;
+    context.drawImage(image, x, y, width, height);
   }
 
   drawPlayer() {

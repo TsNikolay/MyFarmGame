@@ -2,7 +2,7 @@ import Game, { Cell } from "./game.js";
 import View from "./view.js";
 import { config } from "./config.js";
 import { houseCollision } from "../data/collision.js";
-import Interface from "./interface.js";
+import { GardenGame } from "./garden.js";
 
 const modal = document.getElementById("myModal");
 const modal2 = document.getElementById("myModal2");
@@ -16,7 +16,6 @@ export class HouseGame extends Game {
   constructor(interfaceView) {
     super();
     this.interfaceView = interfaceView;
-    this.playerCurrentSprite = new Image();
     this.player.location.main = false;
     this.player.location.house = true;
     this.arrayOfCells = this.createBordersAndMarkers(houseCollision);
@@ -44,32 +43,7 @@ export class HouseGame extends Game {
     if (game.isCollised(this.arrayOfCells.borders, 50, 40, 150, 25)) {
       game.player.position.y += game.player.speed;
     } else if (game.isCollised(this.arrayOfCells.mark2, 50, 40, 150, 25)) {
-      modal.style.display = "block";
-
-      yesButton.onclick = () => {
-        modal.style.display = "none";
-        cutScene.style.display = "block";
-        game.player.location.house = false;
-        game.player.location.main = false;
-
-        cutScene.play();
-        cutScene.onended = () => {
-          modal2.style.display = "block";
-          cutScene.style.display = "none";
-          money.innerHTML = this.interfaceView.showMoneyProfit();
-
-          continueButton.onclick = () => {
-            modal2.style.display = "none";
-            this.interfaceView.newDay();
-            game.player.location.main = true;
-            game.getLocation();
-          };
-        };
-      };
-
-      noButton.onclick = function () {
-        modal.style.display = "none";
-      };
+      this.newDayActions();
     }
   }
 
@@ -83,6 +57,36 @@ export class HouseGame extends Game {
       game.player.location.main = true;
       game.getLocation();
     }
+  }
+
+  newDayActions() {
+    modal.style.display = "block";
+
+    yesButton.onclick = () => {
+      gardenGame.growPlant();
+      modal.style.display = "none";
+      cutScene.style.display = "block";
+      game.player.location.house = false;
+      game.player.location.main = false;
+
+      cutScene.play();
+      cutScene.onended = () => {
+        modal2.style.display = "block";
+        cutScene.style.display = "none";
+        money.innerHTML = this.interfaceView.showMoneyProfit();
+
+        continueButton.onclick = () => {
+          modal2.style.display = "none";
+          this.interfaceView.newDay();
+          game.player.location.main = true;
+          game.getLocation();
+        };
+      };
+    };
+
+    noButton.onclick = function () {
+      modal.style.display = "none";
+    };
   }
 }
 
@@ -108,10 +112,10 @@ export class HouseView extends View {
     this.drawImage(this.houseBackground);
     this.drawPlayer();
     this.drawForeground(this.houseForeground);
-    /*this.drawCollision(this.mainGame.arrayOfCells.borders, config.colors.red);
+    /* this.drawCollision(this.mainGame.arrayOfCells.borders, config.colors.red);
     this.drawCollision(this.mainGame.arrayOfCells.mark1, config.colors.blue);
     this.drawCollision(this.mainGame.arrayOfCells.mark2, config.colors.yellow);
     this.drawCollision(this.mainGame.arrayOfCells.mark3, config.colors.green);
-    this.drawCollision(this.mainGame.arrayOfCells.mark4, config.colors.pink);*/
+    this.drawCollision(this.mainGame.arrayOfCells.mark4, config.colors.pink); */
   }
 }

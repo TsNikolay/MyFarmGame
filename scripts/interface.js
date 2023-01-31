@@ -1,10 +1,10 @@
 import View from "./view.js";
 import { Cell } from "./game.js";
+import { config } from "./config.js";
 
 export default class InterfaceView extends View {
   constructor() {
     super();
-    this.day = 0;
     this.money = "0000";
     this.todayMoney = 0;
     this.yesterdayMoney = 0;
@@ -111,12 +111,6 @@ export class Inventory extends View {
   constructor() {
     super();
 
-    this.items = {
-      showel: "./images/showel.png",
-      potato: "./images/potato.png",
-      radish: "./images/radish.png",
-    };
-
     this.slot1 = new Image();
     this.slot2 = new Image();
     this.slot3 = new Image();
@@ -124,11 +118,24 @@ export class Inventory extends View {
     this.slot5 = new Image();
     this.slot6 = new Image();
     this.slot7 = new Image();
-    this.slot1.src = this.items.showel;
-    this.slot3.src = this.items.potato;
-    this.slot6.src = this.items.radish;
 
-    this.inventory = [this.slot1, null, this.slot3, null, null, this.slot6, null];
+    this.slot2.src = Item.items.bucket;
+    this.slot5.src = Item.items.tomatoSeeds;
+    this.slot1.src = Item.items.showel;
+    this.slot3.src = Item.items.potato;
+    this.slot7.src = Item.items.potatoSeeds;
+
+    this.slots = [
+      this.slot1,
+      this.slot2,
+      this.slot3,
+      this.slot4,
+      this.slot5,
+      this.slot6,
+      this.slot7,
+    ];
+
+    this.inventory = [this.slot1, this.slot2, this.slot3, null, this.slot5, null, this.slot7];
 
     this.inventorySelected = 3;
     this.isEditing = false;
@@ -151,16 +158,44 @@ export class Inventory extends View {
   }
 
   draw() {
-    this.drawImage(this.inventoryImage);
+    this.drawItemInHand();
+
+    let height;
+    if (game.player.position.y < (config.columns - 4) * Cell.height) {
+      height = 0;
+    } else {
+      height = -(config.columns - 1) * Cell.height;
+    }
+
+    this.drawImageWithPosition(this.inventoryImage, 0, height);
     this.drawImageWithPosition(
       this.inventorySelectedImage,
       (this.inventorySelected + 6) * Cell.width,
-      0
+      height
     );
 
     for (let i = 0; i < this.inventory.length; i++) {
-      this.drawImageWithPosition(this.inventory[i], (i + 6) * Cell.width, 0);
+      this.drawImageWithPosition(this.inventory[i], (i + 6) * Cell.width, height);
     }
+  }
+
+  getItem(item) {
+    for (let index = 0; index < this.inventory.length; index++) {
+      if (!this.inventory[index]) {
+        for (let index2 = 0; index2 < this.slots.length; index2++) {
+          if (!this.slots[index2].src) {
+            this.slots[index2].src = item;
+            this.inventory[index] = this.slots[index2];
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  isObjectInHand(object) {
+    if (!this.inventory[this.inventorySelected]) return false;
+    return this.inventory[this.inventorySelected].src.includes(object.slice(1));
   }
 
   isCursorOnInventorySlot(cursorX, cursorY, cellLeftCoord) {
@@ -174,7 +209,6 @@ export class Inventory extends View {
   }
 
   moveItemTake(event) {
-    console.log(this.inventory);
     const slotNumber = Math.trunc(event.offsetX / Cell.width);
     const slotIndexInArray = slotNumber - 6;
     const itemPositionY = -1;
@@ -214,6 +248,16 @@ export class Inventory extends View {
     }
   }
 
+  correctSelectedItemImage() {
+    if (this.inventorySelected == 0) {
+      this.inventorySelectedImage.src = "./images/selectedLeft.png";
+    } else if (this.inventorySelected == this.inventory.length - 1) {
+      this.inventorySelectedImage.src = "./images/selectedRight.png";
+    } else {
+      this.inventorySelectedImage.src = "./images/inventorySelected.png";
+    }
+  }
+
   scrollInventory(event) {
     const oneScrollInPixels = 125;
     let scroll = event.deltaY / oneScrollInPixels;
@@ -226,12 +270,48 @@ export class Inventory extends View {
       this.inventorySelected = this.inventory.length - 1;
     }
 
-    if (this.inventorySelected == 0) {
-      this.inventorySelectedImage.src = "./images/selectedLeft.png";
-    } else if (this.inventorySelected == this.inventory.length - 1) {
-      this.inventorySelectedImage.src = "./images/selectedRight.png";
-    } else {
-      this.inventorySelectedImage.src = "./images/inventorySelected.png";
+    this.correctSelectedItemImage();
+  }
+
+  drawItemInHand() {
+    let cellAmountWidth = 0.4;
+    const cellAmountHeight = 4.5;
+
+    if (game.playerCurrentSprite == game.player.sprites.up) {
+      cellAmountWidth = 0.4;
     }
+    if (game.playerCurrentSprite == game.player.sprites.down) {
+      cellAmountWidth = 0.8;
+    }
+    if (game.playerCurrentSprite == game.player.sprites.left) {
+      cellAmountWidth = 0.1;
+    }
+    if (game.playerCurrentSprite == game.player.sprites.right) {
+      cellAmountWidth = 0.4;
+    }
+
+    this.drawImageWithPosAndScale(
+      this.inventory[this.inventorySelected],
+      game.player.position.x + cellAmountWidth * Cell.width,
+      game.player.position.y - (config.columns - cellAmountHeight) * Cell.height,
+      window.innerWidth / 1.5,
+      window.innerHeight / 1.5
+    );
+  }
+}
+
+export class Item {
+  static items = {
+    potato: "./images/potato.png",
+    potatoSeeds: "./images/potatoSeeds.png",
+    tomato: "./images/tomato.png",
+    tomatoSeeds: "./images/tomatoSeeds.png",
+    radish: "./images/radish.png",
+    showel: "./images/showel.png",
+    bucket: "./images/bucket.png",
+    emptyBucket: "./images/emptyBucket.png",
+  };
+  constructor() {
+    this.amount = 1;
   }
 }

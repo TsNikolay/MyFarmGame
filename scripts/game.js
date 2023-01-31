@@ -1,5 +1,5 @@
 import { config } from "./config.js";
-import { houseCollision, mainCollision } from "../data/collision.js";
+import { gardenCollision, houseCollision, mainCollision } from "../data/collision.js";
 import View from "./view.js";
 
 export default class Game {
@@ -23,12 +23,14 @@ export default class Game {
     const mark2 = [];
     const mark3 = [];
     const mark4 = [];
+    const mark5 = [];
 
     borders.length = 0;
     mark1.length = 0;
     mark2.length = 0;
     mark3.length = 0;
     mark4.length = 0;
+    mark5.length = 0;
 
     collisionsArray.forEach((row, index1) => {
       row.forEach((cell, index2) => {
@@ -40,18 +42,21 @@ export default class Game {
         });
         if (cell === "border") {
           borders.push(cellForArray);
-          //house, mainLocation
+          //houseFromMainLocation, mainLocationFormHouse, mainLocationFormGarden
         } else if (cell === "mark1") {
           mark1.push(cellForArray);
-          //barn, houseFire
+          //barnFromMainLocation, houseFire
         } else if (cell === "mark2") {
           mark2.push(cellForArray);
-          //town
+          //gardenFromMainLocation
         } else if (cell === "mark3") {
           mark3.push(cellForArray);
-          //garden
+          //townFromMainLocation
         } else if (cell === "mark4") {
           mark4.push(cellForArray);
+          //groundInGarden
+        } else if (cell === "mark5") {
+          mark5.push(cellForArray);
         }
       });
     });
@@ -62,6 +67,7 @@ export default class Game {
       mark2: mark2,
       mark3: mark3,
       mark4: mark4,
+      mark5: mark5,
     };
   }
 
@@ -92,6 +98,8 @@ export default class Game {
   }
 
   isCollised(currentCellsArray, padLeft, padRight, padTop, padBottom) {
+    if (!currentCellsArray) return;
+
     for (let i = 0; i < currentCellsArray.length; i++) {
       const cell = currentCellsArray[i];
 
@@ -124,7 +132,6 @@ export default class Game {
     this.playerDownSprite.src = "./images/characterDown1.png";
     this.playerLeftSprite.src = "./images/characterLeft1.png";
     this.playerRightSprite.src = "./images/characterRight1.png";
-
     const player = {
       position: {
         x: window.innerWidth / 2 - window.innerWidth / config.rows / 2,
@@ -192,6 +199,8 @@ export default class Game {
       this.setPlayerProperties(17, 6, 2, 2);
     } else if (this.player.location.house) {
       this.setPlayerProperties(13, 4, 2.5, 2);
+    } else if (this.player.location.garden) {
+      this.setPlayerProperties(17, 6, 2, 2);
     }
   }
 }
@@ -202,5 +211,10 @@ export class Cell {
 
   constructor({ position }) {
     this.position = position;
+    this.isDigged = false;
+    this.isPlanted = false;
+    this.isWatered = false;
+    this.plantType = null;
+    this.growthStage = 4;
   }
 }

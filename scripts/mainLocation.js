@@ -39,6 +39,10 @@ export class MainLocationGame extends Game {
       game.player.location.house = true;
       game.player.location.main = false;
       game.getLocation();
+    } else if (game.isCollised(this.arrayOfCells.mark3, 50, 40, 75, 90)) {
+      game.player.location.garden = true;
+      game.player.location.main = false;
+      game.getLocation();
     }
   }
 
@@ -74,10 +78,10 @@ export class MainLocationView extends View {
     this.drawImage(this.image);
     this.drawPlayer();
     this.drawForeground(this.foregroundImage);
-    /*this.drawCollision(this.mainGame.arrayOfCells.borders, config.colors.red);
+    /* this.drawCollision(this.mainGame.arrayOfCells.borders, config.colors.red);
     this.drawCollision(this.mainGame.arrayOfCells.mark1, config.colors.blue);
     this.drawCollision(this.mainGame.arrayOfCells.mark2, config.colors.yellow);
     this.drawCollision(this.mainGame.arrayOfCells.mark3, config.colors.green);
-    this.drawCollision(this.mainGame.arrayOfCells.mark4, config.colors.pink);*/
+    this.drawCollision(this.mainGame.arrayOfCells.mark4, config.colors.pink); */
   }
 }

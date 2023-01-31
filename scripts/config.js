@@ -35,5 +35,6 @@ export const config = {
     yellow: "rgba(255,255,0,0.7)",
     green: "rgba(0,255,0,0.7)",
     pink: "rgba(252,15,192,0.7)",
+    purple: "rgba(128,0,128,0.7)",
   },
 };
